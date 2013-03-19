@@ -94,7 +94,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
         "eventName": "join_room",
         "data":{
           "room": room,
-		  "username": username
+          "username": username
         }
       }));
 
@@ -114,13 +114,13 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       };
 
       rtc.on('get_peers', function(data) {
-		console.log("get_peers");
+        console.log("get_peers");
         rtc.connections = data.connections;
         rtc._me = data.you;
         // fire connections event and pass peers
         rtc.fire('connections', rtc.connections);
-		// at this point, our connections are ready, fire ready!
-		rtc.fire('ready');
+        // at this point, our connections are ready, fire ready!
+        rtc.fire('ready');
       });
 
       rtc.on('receive_ice_candidate', function(data) {
@@ -130,11 +130,11 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       });
 
       rtc.on('new_peer_connected', function(data) {
-		console.log(data.username+" has joined the chat");
+        console.log(data.username+" has joined the chat");
         rtc.connections.push(data.socketId);
 
         var pc = rtc.createPeerConnection(data.socketId);
-		for (var i = 0; i < rtc.streams.length; i++) {
+        for (var i = 0; i < rtc.streams.length; i++) {
          var stream = rtc.streams[i];
           pc.addStream(stream);
         }
@@ -176,18 +176,18 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
   rtc.createPeerConnections = function() {
     for (var i = 0; i < rtc.connections.length; i++) {
       rtc.createPeerConnection(rtc.connections[i]);
-	  console.log(rtc.connections[i]);
+      console.log(rtc.connections[i]);
     }
   };
 
   rtc.createPeerConnection = function(id) {
-	console.log("creating peer conn");
+    console.log("creating peer conn");
     var config;
     if (rtc.dataChannelSupport)
       config = rtc.dataChannelConfig;
 
     var pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER, config);
-	console.log(pc);
+    console.log(pc);
     pc.onicecandidate = function(event) {
       if (event.candidate) {
          rtc._socket.send(JSON.stringify({
@@ -229,17 +229,17 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
    * This function should retain the following copyright per the apache 2.0 license:
    * https://github.com/Peer5/ShareFest/blob/master/LICENSE 
    */
-	rtc. transformOutgoingSdp = function (sdp) {
-		var splitted = sdp.split("b=AS:30");
-		var newSDP = splitted[0] + "b=AS:1638400" + splitted[1];
-		return newSDP;
-	};
+    rtc. transformOutgoingSdp = function (sdp) {
+        var splitted = sdp.split("b=AS:30");
+        var newSDP = splitted[0] + "b=AS:1638400" + splitted[1];
+        return newSDP;
+    };
 
   rtc.sendOffer = function(socketId) {
     var pc = rtc.peerConnections[socketId];
     pc.createOffer( function(session_description) {
-	session_description.sdp = rtc.transformOutgoingSdp(session_description.sdp);
-	console.log(session_description);
+    session_description.sdp = rtc.transformOutgoingSdp(session_description.sdp);
+    console.log(session_description);
     pc.setLocalDescription(session_description);
     rtc._socket.send(JSON.stringify({
         "eventName": "send_offer",
@@ -262,8 +262,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
   rtc.sendAnswer = function(socketId) {
     var pc = rtc.peerConnections[socketId];
     pc.createAnswer( function(session_description) {
-	session_description.sdp = rtc.transformOutgoingSdp(session_description.sdp);
-	console.log(session_description);
+    session_description.sdp = rtc.transformOutgoingSdp(session_description.sdp);
     pc.setLocalDescription(session_description);
     rtc._socket.send(JSON.stringify({
         "eventName": "send_answer",
@@ -302,9 +301,9 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
             ' or you must turn on experimental flags');
       return;
     }
-	
-	id = pcOrId;
-	pc = rtc.peerConnections[pcOrId];
+    
+    id = pcOrId;
+    pc = rtc.peerConnections[pcOrId];
 
     if (!id)
       throw new Error ('attempt to createDataChannel with unknown id');
@@ -317,7 +316,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
 
     // chrome only supports reliable false atm.
     options = {reliable: false};
-	
+    
     try {
       console.log('createDataChannel ' + id);
       channel = pc.createDataChannel(label, options);
@@ -343,7 +342,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
     };
 
     channel.onmessage = function(message) {
-	  //warning - under heavy data usage the following will print out a whole lot
+      //warning - under heavy data usage the following will print out a whole lot
       //console.log('data stream message ' + id);
       //console.log(message);
       rtc.fire('data stream data', channel, message.data);

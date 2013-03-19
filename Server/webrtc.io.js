@@ -128,10 +128,10 @@ function attachEvents(manager) {
   // manages the built-in room functionality
   rtc.on('join_room', function(data, socket) {
     iolog('join_room');
-	
-	if (data.room == 0){
-		return;
-	}
+    
+    if (data.room == 0){
+        return;
+    }
 
     var connectionsId = [];
     var roomList = rtc.rooms[data.room] || [];
@@ -156,7 +156,7 @@ function attachEvents(manager) {
             "eventName": "new_peer_connected",
             "data":{
               "socketId": socket.id,
-			  "username": data.username
+              "username": data.username
             }
           }), function(error) {
             if (error) {

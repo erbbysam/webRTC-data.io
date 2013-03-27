@@ -1,8 +1,4 @@
 //CLIENT
-
-/*todo: 
- * - link sockets to usernames to prevent username spoofing/modification
- */
  
  // Fallbacks for vendor-specific variables until the spec is finalized.
 
@@ -55,6 +51,8 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
 
   // Array of known peer socket ids
   rtc.connections = [];
+  // Array of usernames, indexed by socket id
+  rtc.usernames = [];
   // Stream-related variables.
   rtc.streams = [];
 
@@ -116,11 +114,12 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       rtc.on('get_peers', function(data) {
         console.log("get_peers");
         rtc.connections = data.connections;
+        rtc.usernames = data.usernames;
         rtc._me = data.you;
         // fire connections event and pass peers
         rtc.fire('connections', rtc.connections);
         // at this point, our connections are ready, fire ready!
-        rtc.fire('ready');
+        rtc.fire('ready', data.you, rtc.usernames);
       });
 
       rtc.on('receive_ice_candidate', function(data) {
@@ -130,9 +129,12 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       });
 
       rtc.on('new_peer_connected', function(data) {
-        console.log(data.username+" has joined the chat");
+        //add username
+        console.log(data.username+" has joined the room.");
+        rtc.usernames[data.socketId] = data.username;
+        
+        //add socket and create streams
         rtc.connections.push(data.socketId);
-
         var pc = rtc.createPeerConnection(data.socketId);
         for (var i = 0; i < rtc.streams.length; i++) {
          var stream = rtc.streams[i];
@@ -141,7 +143,8 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       });
 
       rtc.on('remove_peer_connected', function(data) {
-        rtc.fire('disconnect stream', data.socketId);
+        rtc.fire('disconnect stream', data.socketId, rtc.usernames[data.socketId]);
+        delete rtc.usernames[data.socketId];
         delete rtc.peerConnections[data.socketId];
       });
 
@@ -187,7 +190,6 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
       config = rtc.dataChannelConfig;
 
     var pc = rtc.peerConnections[id] = new PeerConnection(rtc.SERVER, config);
-    console.log(pc);
     pc.onicecandidate = function(event) {
       if (event.candidate) {
          rtc._socket.send(JSON.stringify({
@@ -239,7 +241,6 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
     var pc = rtc.peerConnections[socketId];
     pc.createOffer( function(session_description) {
     session_description.sdp = rtc.transformOutgoingSdp(session_description.sdp);
-    console.log(session_description);
     pc.setLocalDescription(session_description);
     rtc._socket.send(JSON.stringify({
         "eventName": "send_offer",
@@ -332,7 +333,7 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
 
     channel.onopen = function() {
       console.log('data stream open ' + id);
-      rtc.fire('data stream open', channel);
+      rtc.fire('data stream open', id, rtc.usernames[id]);
     };
 
     channel.onclose = function(event) {
@@ -344,8 +345,8 @@ var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || nav
     channel.onmessage = function(message) {
       //warning - under heavy data usage the following will print out a whole lot
       //console.log('data stream message ' + id);
-      //console.log(message);
-      rtc.fire('data stream data', channel, message.data);
+      //pass along the channel id & username
+      rtc.fire('data stream data', channel, message.data, id, rtc.usernames[id]);
     };
 
     channel.onerror = function(err) {

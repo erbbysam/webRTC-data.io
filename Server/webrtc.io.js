@@ -1,12 +1,6 @@
 //SERVER
 var WebSocketServer = require('ws').Server
 
-/* Note that very few modifications have been done here, besides adding username support, and that is incomplete currently
- * 
- * todo: 
- * - link sockets to usernames to prevent username spoofing/modification
- */
-
 var iolog = function() {};
 
 for (var i = 0; i < process.argv.length; i++) {
@@ -28,6 +22,7 @@ if (typeof rtc === "undefined") {
 rtc.sockets = [];
 
 rtc.rooms = {};
+rtc.users = {};
 
 // Holds callbacks for certain events.
 rtc._events = {};
@@ -97,7 +92,10 @@ function attachEvents(manager) {
         var exist = room.indexOf(socket.id);
 
         if (exist !== -1) {
+          //remove from room
           room.splice(room.indexOf(socket.id), 1);
+          
+          //send disconnect to peers
           for (var j = 0; j < room.length; j++) {
             console.log(room[j]);
             var soc = rtc.getSocket(room[j]);
@@ -112,6 +110,11 @@ function attachEvents(manager) {
               }
             });
           }
+          
+          //also remove from username list
+          var userList = rtc.users[key];
+          delete userList[socket.id];
+          
           break;
         }
       }
@@ -134,11 +137,15 @@ function attachEvents(manager) {
     }
 
     var connectionsId = [];
+    var usersId = [];
     var roomList = rtc.rooms[data.room] || [];
+    var userList = rtc.users[data.room] || {};
 
     roomList.push(socket.id);
     rtc.rooms[data.room] = roomList;
-
+    
+    userList[socket.id] = data.username;
+    rtc.users[data.room] = userList;
 
     for (var i = 0; i < roomList.length; i++) {
       var id = roomList[i];
@@ -166,11 +173,13 @@ function attachEvents(manager) {
         }
       }
     }
+    
     // send new peer a list of all prior peers
     socket.send(JSON.stringify({
       "eventName": "get_peers",
       "data": {
         "connections": connectionsId,
+        "usernames": userList,
         "you": socket.id
       }
     }), function(error) {

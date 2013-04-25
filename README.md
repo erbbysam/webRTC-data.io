@@ -2,13 +2,15 @@
 This is a branch of the client/server code on https://github.com/webRTC/webRTC.io to support data-only connections. 
 Note that a fair amount of audio/video functionality was removed as it is no longer necessary in this data only case. Also, webRTC.io worked by waiting for the media streams to come online(user agreement) before connecting. This code connects immediately.
 
-This has only been tested in Chrome Canary, but may work in Firefox also.
+This has only been tested in Chrome Canary, Chrome & Firefox nightly.
 
-Please note that this only supports unreliable connections at this time, so it is your responsibility to build in reliability within your application if it is required.
+Please note that this only supports unreliable connections at this time (in Chrome), so it is your responsibility to build in reliability within your application if it is required.
+Firefox nightly supports reliable connections.
 
+Note that there is a minor addition to what is done in webRTC.io. You must check rtc.connection_ok_to_send[id] to check the current status of the webRTC connection.
 
 ### Demo
-Will be posted eventually.
+Will be posted eventually. For the meantime, checkout https://github.com/erbbysam/webRTCCopy/
 
 ### Usage
 Similar to webrtc.io, only including a username

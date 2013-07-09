@@ -18,6 +18,19 @@ Similar to webrtc.io, only including a username
 rtc.connect("ws:yourserveraddress:8000", room, username);
 ```
 
+### Server
+Using node.js, create a server simply using:
+```javascript
+var app = require('express')();
+var server = require('http').createServer(app);
+var webRTC = require('webrtc.io').listen(server);
+
+server.listen(8000);
+```
+
+For an example of this fully setup see https://github.com/erbbysam/webRTCCopy/tree/master/server
+
+
 ### License
 Copyright (C) 2013 [Samuel Erb] (http://erbbysam.com)
 

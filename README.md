@@ -9,6 +9,9 @@ Firefox nightly supports reliable connections.
 
 Note that there is a minor addition to what is done in webRTC.io. You must check rtc.connection_ok_to_send[id] to check the current status of the webRTC connection.
 
+Another note - please see https://github.com/erbbysam/webRTC-data.io/commit/49366c03e51aaf2af3e36da8a9dd5bf4c701d041#diff-c30413d646b060b0092f9033ace2417dL378
+This file is currently only setup to support reliable connections, backing out that one line change will bring back support for unreliable connections if you need that support
+
 ### Demo
 Will be posted eventually. For the meantime, checkout https://github.com/erbbysam/webRTCCopy/
 
@@ -36,7 +39,7 @@ Copyright (C) 2013 [Samuel Erb] (http://erbbysam.com)
 
 Same License list below. As this code is a modification of the project https://github.com/webRTC/webRTC.io it is required to maintain the following license:
 
-Copyright (C) 2012 [Ben Brittain](https://github.com/cavedweller), [Dennis Mårtensson](https://github.com/dennismartensson), [David Peter](https://github.com/sarenji)
+Copyright (C) 2012 [Ben Brittain](https://github.com/cavedweller), [Dennis Mï¿½rtensson](https://github.com/dennismartensson), [David Peter](https://github.com/sarenji)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
